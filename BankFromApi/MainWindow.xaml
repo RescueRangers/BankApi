@@ -5,8 +5,37 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BankFromApi"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        
+        xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
+        Title="MainWindow" Height="450" Width="800"
+        DataContext="{Binding Main, Source={StaticResource Locator}}">
+    <Grid Margin="10">
+        <DockPanel>
+            <StackPanel DockPanel.Dock="Top"
+                        Orientation="Horizontal">
+                <Label Content="Data od:"/>
+                <DatePicker SelectedDate="{Binding DateFrom}"/>
+                <Label Content="Data do:"/>
+                <DatePicker SelectedDate="{Binding DateTo}"/>
+                <Button Margin="10 0"
+                        Content="Szukaj szukaj"
+                        Command="{Binding GetDataCommand}"/>
+                <ComboBox ItemsSource="{Binding Symbols}"
+                          SelectedValue="{Binding SelectedSymbol}"/>
+
+            </StackPanel>
+            <!--<DataGrid DockPanel.Dock="Bottom"
+                      ItemsSource="{Binding Rates}"
+                      AutoGenerateColumns="False">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Date" Binding="{Binding Date, StringFormat=d, ConverterCulture=pl-PL}"/>
+                    <DataGridTextColumn Header="Value" Binding="{Binding Value}"/>
+                </DataGrid.Columns>
+            </DataGrid>-->
+            <lvc:CartesianChart DockPanel.Dock="Bottom" Series="{Binding Series}">
+                <lvc:CartesianChart.AxisX>
+                    <lvc:Axis Title="Data" Labels="{Binding CurrencyValues.Date}"></lvc:Axis>
+                </lvc:CartesianChart.AxisX>
+            </lvc:CartesianChart>
+        </DockPanel>
     </Grid>
 </Window>

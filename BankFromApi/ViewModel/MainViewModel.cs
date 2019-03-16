@@ -34,14 +34,38 @@ namespace BankFromApi.ViewModel
         private ObservableCollection<string> _symbols;
         private string _selectedSymbol;
         private SeriesCollection _series;
+        private string _appStatus;
+        private List<string> _labels;
 
-        public SeriesCollection Series { get => _series; set { Set(nameof(Series), ref _series, value); } }
+        public List<string> Labels
+        {
+            get => _labels;
+            set
+            {
+                Set(nameof(Labels), ref _labels, value);
+            }
+        }
 
+        public string AppStatus
+        {
+            get => _appStatus;
+            set
+            {
+                Set(nameof(AppStatus), ref _appStatus, value);
+            }
+        }
+
+        public SeriesCollection Series
+        {
+            get => _series;
+            set
+            {
+                Set(nameof(Series), ref _series, value);
+            }
+        }
 
         public string SelectedSymbol { get => _selectedSymbol; set { Set(nameof(SelectedSymbol), ref _selectedSymbol, value); } }
-
         public ObservableCollection<string> Symbols { get => _symbols; set { Set(nameof(Symbols), ref _symbols, value); } }
-
         public ObservableCollection<CurrencyValue> Rates { get => _rates; set { Set(nameof(Rates), ref _rates, value); } }
 
         public DateTime DateFrom
@@ -52,6 +76,7 @@ namespace BankFromApi.ViewModel
                 Set(nameof(DateFrom), ref _dateFrom, value);
             }
         }
+
         public DateTime DateTo
         {
             get => _dateTo;
@@ -73,12 +98,6 @@ namespace BankFromApi.ViewModel
 
         private async void GetSymbols()
         {
-            var symbols = await GetSymbol();
-            Symbols = new ObservableCollection<string>(symbols[0].rates.Select(s => s.code));
-        }
-
-        private async Task<List<RootObject>> GetSymbol()
-        {
             var apiUrl = "http://api.nbp.pl/api/exchangerates/tables/A/";
 
             try
@@ -86,29 +105,29 @@ namespace BankFromApi.ViewModel
                 using (var client = new HttpClient())
                 {
                     var currencyJson = await client.GetStringAsync(apiUrl);
-                    return JsonConvert.DeserializeObject<List<RootObject>>(currencyJson);
+                    var symbols = JsonConvert.DeserializeObject<List<RootObject>>(currencyJson);
+                    Symbols = new ObservableCollection<string>(symbols[0].rates.Select(s => s.code));
                 }
             }
             catch (Exception ex)
             {
-                return null;
+
             }
+
         }
 
         private async void GetRate()
         {
             var root = await GetData();
 
-            var rates = new List<CurrencyValue>();
-
             var lineSeries = new List<double>();
-            var columnSeries = new List<DateTimePoint>();
+            var labels = new List<string>();
 
             foreach (var item in root)
             {
                 var result = item.rates.FirstOrDefault(s => s.code == SelectedSymbol);
                 lineSeries.Add(result.mid);
-                rates.Add(new CurrencyValue(DateTime.Parse(item.effectiveDate), result.mid));
+                labels.Add(item.effectiveDate);
             }
 
             Series = new SeriesCollection
@@ -116,7 +135,6 @@ namespace BankFromApi.ViewModel
                 new LineSeries {Values = new ChartValues<double>(lineSeries) }
             };
 
-            Rates = new ObservableCollection<CurrencyValue>(rates);
         }
 
         private async Task<List<RootObject>> GetData()

@@ -32,8 +32,11 @@
                 </DataGrid.Columns>
             </DataGrid>-->
             <lvc:CartesianChart DockPanel.Dock="Bottom" Series="{Binding Series}">
+                <lvc:CartesianChart.AxisY>
+                    <lvc:Axis Title="{Binding SelectedSymbol}"/>
+                </lvc:CartesianChart.AxisY>
                 <lvc:CartesianChart.AxisX>
-                    <lvc:Axis Title="Data" Labels="{Binding CurrencyValues.Date}"></lvc:Axis>
+                    <lvc:Axis Title="Data" Labels="{Binding Labels}"/>
                 </lvc:CartesianChart.AxisX>
             </lvc:CartesianChart>
         </DockPanel>

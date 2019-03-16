@@ -106,8 +106,8 @@ namespace BankFromApi.ViewModel
         public MainViewModel()
         {
             GetDataCommand = new RelayCommand(GetRate, CanGetData);
-            AddLineSeriesCommand = new RelayCommand(AddLineSeries, true);
-            ClearChartCommand = new RelayCommand(ClearChart, true);
+            AddLineSeriesCommand = new RelayCommand(AddLineSeries, () => _root != null);
+            ClearChartCommand = new RelayCommand(ClearChart, () => Series != null);
             GetSymbols();
         }
 
@@ -120,17 +120,19 @@ namespace BankFromApi.ViewModel
 
         private void AddLineSeries()
         {
-            var lineSeries = new LineSeries
-            {
-                Values = new ChartValues<double>(),
-                Title = SelectedSymbol
-            };
+            var values = new List<double>();
 
             foreach (var item in _root)
             {
                 var result = item.rates.FirstOrDefault(s => s.code == SelectedSymbol);
-                lineSeries.Values.Add(result.mid);
+                values.Add(result.mid);
             }
+
+            var lineSeries = new LineSeries
+            {
+                Values = new ChartValues<double>(values),
+                Title = SelectedSymbol,
+            };
 
             Series.Add(lineSeries);
         }
@@ -160,7 +162,6 @@ namespace BankFromApi.ViewModel
             }
         }
 
-
         private async void GetRate()
         {
             _root = await GetData();
@@ -184,7 +185,7 @@ namespace BankFromApi.ViewModel
                 {
                     Values = new ChartValues<double>(lineSeries),
                     Title = SelectedSymbol
-                }
+                },
             };
 
             CanEditDates = false;

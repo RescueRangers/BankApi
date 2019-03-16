@@ -116,13 +116,15 @@ namespace BankFromApi.ViewModel
             }
             catch (Exception ex)
             {
-
+                AppStatus = ex.Message;
             }
         }
 
         private async void GetRate()
         {
             var root = await GetData();
+
+            if (root == null) return;
 
             var lineSeries = new List<double>();
             var labels = new List<string>();
@@ -143,7 +145,7 @@ namespace BankFromApi.ViewModel
 
         private async Task<List<RootObject>> GetData()
         {
-            List<RootObject> ro_root = new List<RootObject>();
+            var root = new List<RootObject>();
             var apiUrl = "http://api.nbp.pl/api/exchangerates/tables/A/";
             apiUrl += DateFrom.ToString("yyyy-MM-dd");
             apiUrl += "/";
@@ -154,12 +156,13 @@ namespace BankFromApi.ViewModel
                 using (var client = new HttpClient())
                 {
                     var currencyJson = await client.GetStringAsync(apiUrl);
-                    ro_root = JsonConvert.DeserializeObject<List<RootObject>>(currencyJson);
+                    root = JsonConvert.DeserializeObject<List<RootObject>>(currencyJson);
                 }
-                return ro_root;
+                return root;
             }
             catch (Exception ex)
             {
+                AppStatus = ex.Message;
                 return null;
             }
         }

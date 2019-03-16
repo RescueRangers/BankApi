@@ -151,6 +151,7 @@ namespace BankFromApi.ViewModel
                     var currencyJson = await client.GetStringAsync(apiUrl);
                     var symbols = JsonConvert.DeserializeObject<List<RootObject>>(currencyJson);
                     Symbols = new ObservableCollection<string>(symbols[0].rates.Select(s => s.code));
+                    AppStatus = null;
                 }
             }
             catch (Exception ex)
@@ -204,6 +205,7 @@ namespace BankFromApi.ViewModel
                     var currencyJson = await client.GetStringAsync(apiUrl);
                     root = JsonConvert.DeserializeObject<List<RootObject>>(currencyJson);
                 }
+                AppStatus = null;
                 return root;
             }
             catch (Exception ex)

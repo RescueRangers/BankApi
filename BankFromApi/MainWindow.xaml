@@ -10,34 +10,35 @@
         DataContext="{Binding Main, Source={StaticResource Locator}}">
     <Grid Margin="10">
         <DockPanel>
-            <StackPanel DockPanel.Dock="Top"
-                        Orientation="Horizontal">
+            <StackPanel DockPanel.Dock="Right"
+                        Orientation="Vertical"
+                        Width="120">
                 <Label Content="Data od:"/>
                 <DatePicker SelectedDate="{Binding DateFrom}" 
                             IsEnabled="{Binding CanEditDates}"/>
                 <Label Content="Data do:"/>
                 <DatePicker SelectedDate="{Binding DateTo}"
                             IsEnabled="{Binding CanEditDates}"/>
-                <Button Margin="10 0"
-                        Padding="5 0"
+                <Button Margin="0 10"
+                        Padding="5"
                         Content="Szukaj"
                         Command="{Binding GetDataCommand}"/>
                 <ComboBox ItemsSource="{Binding Symbols}"
                           SelectedValue="{Binding SelectedSymbol}"/>
 
                 <Button Content="Dodaj do wykresu"
-                        Margin="10 0"
-                        Padding="5 0"
+                        Margin="0 10"
+                        Padding="5"
                         Command="{Binding AddLineSeriesCommand}"/>
 
                 <Button Content="Wyczyść wykres"
-                        Margin="10 0"
-                        Padding="5 0"
+                        Margin="0 10"
+                        Padding="5"
                         Command="{Binding ClearChartCommand}"/>
 
                 <TextBlock Text="{Binding AppStatus}"
                            TextWrapping="Wrap"
-                           Margin="10 0"
+                           Margin="0 10"
                            Foreground="Red"/>
             </StackPanel>
             <lvc:CartesianChart DockPanel.Dock="Bottom" 

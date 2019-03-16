@@ -136,9 +136,15 @@ namespace BankFromApi.ViewModel
                 labels.Add(item.effectiveDate);
             }
 
+            Labels = labels;
+
             Series = new SeriesCollection
             {
-                new LineSeries {Values = new ChartValues<double>(lineSeries) }
+                new LineSeries
+                {
+                    Values = new ChartValues<double>(lineSeries),
+                    Title = SelectedSymbol
+                }
             };
 
         }

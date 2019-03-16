@@ -1,6 +1,6 @@
 using BankFromApi.Model;
 using GalaSoft.MvvmLight;
-using GalaSoft.MvvmLight.Command;
+using GalaSoft.MvvmLight.CommandWpf;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -28,8 +28,8 @@ namespace BankFromApi.ViewModel
     /// </summary>
     public class MainViewModel : ViewModelBase
     {
-        private DateTime _dateFrom = DateTime.UtcNow.AddDays(-1);
-        private DateTime _dateTo = DateTime.UtcNow;
+        private DateTime _dateFrom = DateTime.Today.AddDays(-1);
+        private DateTime _dateTo = DateTime.Today;
         private ObservableCollection<CurrencyValue> _rates;
         private ObservableCollection<string> _symbols;
         private string _selectedSymbol;
@@ -86,14 +86,19 @@ namespace BankFromApi.ViewModel
             }
         }
 
-        public ICommand GetDataCommand { get; set; }
+        public RelayCommand GetDataCommand { get; set; }
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
         public MainViewModel()
         {
-            GetDataCommand = new RelayCommand(GetRate, () => true);
+            GetDataCommand = new RelayCommand(GetRate, CanGetData);
             GetSymbols();
+        }
+
+        private bool CanGetData()
+        {
+            return DateFrom <= DateTo && !string.IsNullOrWhiteSpace(SelectedSymbol);
         }
 
         private async void GetSymbols()
@@ -113,7 +118,6 @@ namespace BankFromApi.ViewModel
             {
 
             }
-
         }
 
         private async void GetRate()

@@ -36,6 +36,17 @@ namespace BankFromApi.ViewModel
         private SeriesCollection _series;
         private string _appStatus;
         private List<string> _labels;
+        private List<RootObject> _root;
+        private bool _canEditDates = true;
+
+        public bool CanEditDates
+        {
+            get => _canEditDates;
+            set
+            {
+                Set(nameof(CanEditDates), ref _canEditDates, value);
+            }
+        }
 
         public List<string> Labels
         {
@@ -86,14 +97,42 @@ namespace BankFromApi.ViewModel
             }
         }
 
-        public RelayCommand GetDataCommand { get; set; }
+        public ICommand GetDataCommand { get; set; }
+        public ICommand AddLineSeriesCommand { get; set; }
+        public ICommand ClearChartCommand { get; set; }
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
         public MainViewModel()
         {
             GetDataCommand = new RelayCommand(GetRate, CanGetData);
+            AddLineSeriesCommand = new RelayCommand(AddLineSeries, true);
+            ClearChartCommand = new RelayCommand(ClearChart, true);
             GetSymbols();
+        }
+
+        private void ClearChart()
+        {
+            Series.Clear();
+            CanEditDates = true;
+
+        }
+
+        private void AddLineSeries()
+        {
+            var lineSeries = new LineSeries
+            {
+                Values = new ChartValues<double>(),
+                Title = SelectedSymbol
+            };
+
+            foreach (var item in _root)
+            {
+                var result = item.rates.FirstOrDefault(s => s.code == SelectedSymbol);
+                lineSeries.Values.Add(result.mid);
+            }
+
+            Series.Add(lineSeries);
         }
 
         private bool CanGetData()
@@ -120,16 +159,16 @@ namespace BankFromApi.ViewModel
             }
         }
 
+
         private async void GetRate()
         {
-            var root = await GetData();
-
-            if (root == null) return;
+            _root = await GetData();
+            if (_root == null) return;
 
             var lineSeries = new List<double>();
             var labels = new List<string>();
 
-            foreach (var item in root)
+            foreach (var item in _root)
             {
                 var result = item.rates.FirstOrDefault(s => s.code == SelectedSymbol);
                 lineSeries.Add(result.mid);
@@ -147,6 +186,7 @@ namespace BankFromApi.ViewModel
                 }
             };
 
+            CanEditDates = false;
         }
 
         private async Task<List<RootObject>> GetData()

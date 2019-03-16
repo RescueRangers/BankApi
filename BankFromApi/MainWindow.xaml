@@ -13,9 +13,11 @@
             <StackPanel DockPanel.Dock="Top"
                         Orientation="Horizontal">
                 <Label Content="Data od:"/>
-                <DatePicker SelectedDate="{Binding DateFrom}"/>
+                <DatePicker SelectedDate="{Binding DateFrom}" 
+                            IsEnabled="{Binding CanEditDates}"/>
                 <Label Content="Data do:"/>
-                <DatePicker SelectedDate="{Binding DateTo}"/>
+                <DatePicker SelectedDate="{Binding DateTo}"
+                            IsEnabled="{Binding CanEditDates}"/>
                 <Button Margin="10 0"
                         Padding="5 0"
                         Content="Szukaj"
@@ -23,15 +25,24 @@
                 <ComboBox ItemsSource="{Binding Symbols}"
                           SelectedValue="{Binding SelectedSymbol}"/>
 
+                <Button Content="Dodaj do wykresu"
+                        Margin="10 0"
+                        Padding="5 0"
+                        Command="{Binding AddLineSeriesCommand}"/>
+
+                <Button Content="Wyczyść wykres"
+                        Margin="10 0"
+                        Padding="5 0"
+                        Command="{Binding ClearChartCommand}"/>
+
                 <TextBlock Text="{Binding AppStatus}"
                            TextWrapping="Wrap"
                            Margin="10 0"
                            Foreground="Red"/>
             </StackPanel>
-            <lvc:CartesianChart DockPanel.Dock="Bottom" Series="{Binding Series}">
-                <lvc:CartesianChart.AxisY>
-                    <lvc:Axis Title="{Binding SelectedSymbol}"/>
-                </lvc:CartesianChart.AxisY>
+            <lvc:CartesianChart DockPanel.Dock="Bottom" 
+                                Series="{Binding Series}"
+                                LegendLocation="Right">
                 <lvc:CartesianChart.AxisX>
                     <lvc:Axis Title="Data" Labels="{Binding Labels}"/>
                 </lvc:CartesianChart.AxisX>

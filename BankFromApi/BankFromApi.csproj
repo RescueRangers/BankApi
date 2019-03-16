@@ -79,8 +79,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Model\CurrencyValue.cs" />
-    <Compile Include="Model\DateTimePoint.cs" />
     <Compile Include="Model\Rate.cs" />
     <Compile Include="Model\RootObject.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />

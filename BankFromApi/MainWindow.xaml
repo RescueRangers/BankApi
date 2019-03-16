@@ -21,7 +21,7 @@
                             IsEnabled="{Binding CanEditDates}"/>
                 <Button Margin="0 10"
                         Padding="5"
-                        Content="Szukaj"
+                        Content="Pokaż na wykresie"
                         Command="{Binding GetDataCommand}"/>
                 <ComboBox ItemsSource="{Binding Symbols}"
                           SelectedValue="{Binding SelectedSymbol}"/>

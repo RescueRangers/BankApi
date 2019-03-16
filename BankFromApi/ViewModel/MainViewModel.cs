@@ -30,7 +30,6 @@ namespace BankFromApi.ViewModel
     {
         private DateTime _dateFrom = DateTime.Today.AddDays(-1);
         private DateTime _dateTo = DateTime.Today;
-        private ObservableCollection<CurrencyValue> _rates;
         private ObservableCollection<string> _symbols;
         private string _selectedSymbol;
         private SeriesCollection _series;
@@ -75,9 +74,23 @@ namespace BankFromApi.ViewModel
             }
         }
 
-        public string SelectedSymbol { get => _selectedSymbol; set { Set(nameof(SelectedSymbol), ref _selectedSymbol, value); } }
-        public ObservableCollection<string> Symbols { get => _symbols; set { Set(nameof(Symbols), ref _symbols, value); } }
-        public ObservableCollection<CurrencyValue> Rates { get => _rates; set { Set(nameof(Rates), ref _rates, value); } }
+        public string SelectedSymbol
+        {
+            get => _selectedSymbol;
+            set
+            {
+                Set(nameof(SelectedSymbol), ref _selectedSymbol, value);
+            }
+        }
+
+        public ObservableCollection<string> Symbols
+        {
+            get => _symbols;
+            set
+            {
+                Set(nameof(Symbols), ref _symbols, value);
+            }
+        }
 
         public DateTime DateFrom
         {

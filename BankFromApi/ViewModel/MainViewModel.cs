@@ -5,10 +5,12 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Flurl;
 using LiveCharts;
 using LiveCharts.Wpf;
 
@@ -207,26 +209,49 @@ namespace BankFromApi.ViewModel
         private async Task<List<RootObject>> GetData()
         {
             var root = new List<RootObject>();
-            var apiUrl = "http://api.nbp.pl/api/exchangerates/tables/A/";
-            apiUrl += DateFrom.ToString("yyyy-MM-dd");
-            apiUrl += "/";
-            apiUrl += DateTo.ToString("yyyy-MM-dd") + "/?format=json";
+            var dates = new List<Tuple<DateTime, DateTime>>();
+            var apiDayLimit = 93;
 
-            try
+            var dateFrom = DateFrom;
+            var dateTo = DateTo;
+
+            if ((dateFrom - dateTo).TotalDays < -apiDayLimit)
             {
-                using (var client = new HttpClient())
+                while ((dateFrom - dateTo).TotalDays < -apiDayLimit)
                 {
-                    var currencyJson = await client.GetStringAsync(apiUrl);
-                    root = JsonConvert.DeserializeObject<List<RootObject>>(currencyJson);
+                    dates.Add(new Tuple<DateTime, DateTime>(dateFrom, dateFrom.AddDays(apiDayLimit)));
+
+                    dateFrom = dateFrom.AddDays(apiDayLimit+1);
                 }
-                AppStatus = null;
-                return root;
+
+                dates.Add(new Tuple<DateTime, DateTime>(dateFrom, dateTo));
             }
-            catch (Exception ex)
+            else
             {
-                AppStatus = ex.Message;
-                return null;
+                dates.Add(new Tuple<DateTime, DateTime>(dateFrom, dateTo));
             }
+
+            foreach (var date in dates)
+            {
+                var url = Url.Combine("http://api.nbp.pl/api/exchangerates/tables/A/", date.Item1.ToString("yyyy-MM-dd"), date.Item2.ToString("yyyy-MM-dd"));
+
+                try
+                {
+                    using (var client = new HttpClient())
+                    {
+                        var currencyJson = await client.GetStringAsync(url);
+                        root.AddRange(JsonConvert.DeserializeObject<List<RootObject>>(currencyJson));
+                    }
+                    AppStatus = null;
+                }
+                catch (Exception ex)
+                {
+                    AppStatus = ex.Message;
+                    return null;
+                }
+            }
+
+            return root;
         }
     }
 }

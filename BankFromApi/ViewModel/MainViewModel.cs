@@ -143,6 +143,7 @@ namespace BankFromApi.ViewModel
                 values.Add(result.mid);
             }
 
+
             var lineSeries = new LineSeries
             {
                 Values = new ChartValues<double>(values),
@@ -154,7 +155,7 @@ namespace BankFromApi.ViewModel
 
         private bool CanGetData()
         {
-            return DateFrom <= DateTo && !string.IsNullOrWhiteSpace(SelectedSymbol);
+            return DateFrom <= DateTo && !string.IsNullOrWhiteSpace(SelectedSymbol) && DateTo <= DateTime.Today;
         }
 
         private async void GetSymbols()

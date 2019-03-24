@@ -32,8 +32,8 @@ namespace BankFromApi.ViewModel
     {
         private DateTime _dateFrom = DateTime.Today.AddDays(-1);
         private DateTime _dateTo = DateTime.Today;
-        private ObservableCollection<string> _symbols;
-        private string _selectedSymbol;
+        private ObservableCollection<Rate> _symbols;
+        private Rate _selectedSymbol;
         private SeriesCollection _series;
         private string _appStatus;
         private List<string> _labels;
@@ -76,7 +76,7 @@ namespace BankFromApi.ViewModel
             }
         }
 
-        public string SelectedSymbol
+        public Rate SelectedSymbol
         {
             get => _selectedSymbol;
             set
@@ -85,7 +85,7 @@ namespace BankFromApi.ViewModel
             }
         }
 
-        public ObservableCollection<string> Symbols
+        public ObservableCollection<Rate> Symbols
         {
             get => _symbols;
             set
@@ -139,15 +139,14 @@ namespace BankFromApi.ViewModel
 
             foreach (var item in _root)
             {
-                var result = item.rates.FirstOrDefault(s => s.code == SelectedSymbol);
+                var result = item.rates.FirstOrDefault(s => s.code == SelectedSymbol.code);
                 values.Add(result.mid);
             }
-
 
             var lineSeries = new LineSeries
             {
                 Values = new ChartValues<double>(values),
-                Title = SelectedSymbol,
+                Title = SelectedSymbol.ToString(),
             };
 
             Series.Add(lineSeries);
@@ -155,7 +154,7 @@ namespace BankFromApi.ViewModel
 
         private bool CanGetData()
         {
-            return DateFrom <= DateTo && !string.IsNullOrWhiteSpace(SelectedSymbol) && DateTo <= DateTime.Today;
+            return DateFrom <= DateTo && SelectedSymbol != null && DateTo <= DateTime.Today;
         }
 
         private async void GetSymbols()
@@ -168,7 +167,7 @@ namespace BankFromApi.ViewModel
                 {
                     var currencyJson = await client.GetStringAsync(apiUrl);
                     var symbols = JsonConvert.DeserializeObject<List<RootObject>>(currencyJson);
-                    Symbols = new ObservableCollection<string>(symbols[0].rates.Select(s => s.code));
+                    Symbols = new ObservableCollection<Rate>(symbols[0].rates);
                     AppStatus = null;
                 }
             }
@@ -188,7 +187,7 @@ namespace BankFromApi.ViewModel
 
             foreach (var item in _root)
             {
-                var result = item.rates.FirstOrDefault(s => s.code == SelectedSymbol);
+                var result = item.rates.FirstOrDefault(s => s.code == SelectedSymbol.code);
                 lineSeries.Add(result.mid);
                 labels.Add(item.effectiveDate);
             }
@@ -200,7 +199,7 @@ namespace BankFromApi.ViewModel
                 new LineSeries
                 {
                     Values = new ChartValues<double>(lineSeries),
-                    Title = SelectedSymbol
+                    Title = SelectedSymbol.ToString()
                 },
             };
 

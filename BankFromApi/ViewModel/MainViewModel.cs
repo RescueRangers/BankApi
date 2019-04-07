@@ -1,19 +1,17 @@
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using Flurl;
 using LiveCharts;
 using LiveCharts.Wpf;
 using ApiLibrary;
 using ApiLibrary.DataModel;
+using BankFromApi.Model;
 
 namespace BankFromApi.ViewModel
 {
@@ -38,10 +36,14 @@ namespace BankFromApi.ViewModel
         private SeriesCollection _series;
         private string _appStatus;
         private List<string> _labels;
-        private List<CurrencyRoot> _root;
         private bool _canEditDates = true;
+        private ObservableCollection<SeriesWithLabels> _seriesCollections = new ObservableCollection<SeriesWithLabels>();
 
-        private readonly int ApiDayLimit = 93;
+        public ObservableCollection<SeriesWithLabels> SeriesCollections
+        {
+            get => _seriesCollections;
+            set => Set(nameof(SeriesCollections), ref _seriesCollections, value);
+        }
 
         public bool CanEditDates
         {
@@ -116,7 +118,6 @@ namespace BankFromApi.ViewModel
         }
 
         public ICommand GetDataCommand { get; set; }
-        public ICommand AddLineSeriesCommand { get; set; }
         public ICommand ClearChartCommand { get; set; }
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
@@ -124,35 +125,15 @@ namespace BankFromApi.ViewModel
         public MainViewModel()
         {
             GetDataCommand = new RelayCommand(GetRate, CanGetData);
-            AddLineSeriesCommand = new RelayCommand(AddLineSeries, () => _root != null);
             ClearChartCommand = new RelayCommand(ClearChart, () => Series != null);
             GetSymbols();
         }
 
         private void ClearChart()
         {
-            Series.Clear();
+            SeriesCollections.Clear();
             CanEditDates = true;
 
-        }
-
-        private void AddLineSeries()
-        {
-            var values = new List<double>();
-
-            foreach(var root in _root)
-            {
-                values.AddRange(root.rates.Select(s => s.mid));
-            }
-            
-
-            var lineSeries = new LineSeries
-            {
-                Values = new ChartValues<double>(values),
-                Title = SelectedSymbol.ToString(),
-            };
-
-            Series.Add(lineSeries);
         }
 
         private bool CanGetData()
@@ -168,13 +149,13 @@ namespace BankFromApi.ViewModel
 
         private async void GetRate()
         {
-            _root = await GetFromApi.CurrencyRate(DateFrom, DateTo, SelectedSymbol);
-            if (_root == null) return;
+            var root = await GetFromApi.CurrencyRate(DateFrom, DateTo, SelectedSymbol);
+            if (root == null) return;
 
             var lineSeries = new List<double>();
             var labels = new List<string>();
 
-            foreach (var item in _root)
+            foreach (var item in root)
             {
                 lineSeries.AddRange(item.rates.Select(s => s.mid));
                 labels.AddRange(item.rates.Select(s => s.effectiveDate));
@@ -190,6 +171,8 @@ namespace BankFromApi.ViewModel
                     Title = SelectedSymbol.ToString()
                 },
             };
+
+            SeriesCollections.Add(new SeriesWithLabels(Series, Labels));
 
             CanEditDates = false;
         }

@@ -33,9 +33,7 @@ namespace BankFromApi.ViewModel
         private DateTime _dateTo = DateTime.Today;
         private ObservableCollection<Rate> _symbols;
         private Rate _selectedSymbol;
-        private SeriesCollection _series;
         private string _appStatus;
-        private List<string> _labels;
         private bool _canEditDates = true;
         private ObservableCollection<SeriesWithLabels> _seriesCollections = new ObservableCollection<SeriesWithLabels>();
 
@@ -54,30 +52,12 @@ namespace BankFromApi.ViewModel
             }
         }
 
-        public List<string> Labels
-        {
-            get => _labels;
-            set
-            {
-                Set(nameof(Labels), ref _labels, value);
-            }
-        }
-
         public string AppStatus
         {
             get => _appStatus;
             set
             {
                 Set(nameof(AppStatus), ref _appStatus, value);
-            }
-        }
-
-        public SeriesCollection Series
-        {
-            get => _series;
-            set
-            {
-                Set(nameof(Series), ref _series, value);
             }
         }
 
@@ -125,7 +105,7 @@ namespace BankFromApi.ViewModel
         public MainViewModel()
         {
             GetDataCommand = new RelayCommand(GetRate, CanGetData);
-            ClearChartCommand = new RelayCommand(ClearChart, () => Series != null);
+            ClearChartCommand = new RelayCommand(ClearChart, !CanEditDates);
             GetSymbols();
         }
 
@@ -161,9 +141,7 @@ namespace BankFromApi.ViewModel
                 labels.AddRange(item.rates.Select(s => s.effectiveDate));
             }
 
-            Labels = labels;
-
-            Series = new SeriesCollection
+            var series = new SeriesCollection
             {
                 new LineSeries
                 {
@@ -172,7 +150,7 @@ namespace BankFromApi.ViewModel
                 },
             };
 
-            SeriesCollections.Add(new SeriesWithLabels(Series, Labels));
+            SeriesCollections.Add(new SeriesWithLabels(series, labels));
 
             CanEditDates = false;
         }

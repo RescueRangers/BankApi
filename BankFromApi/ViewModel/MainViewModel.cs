@@ -1,4 +1,4 @@
-using GalaSoft.MvvmLight;
+﻿using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
 using System;
 using System.Collections.Generic;
@@ -34,22 +34,19 @@ namespace BankFromApi.ViewModel
         private ObservableCollection<Rate> _symbols;
         private Rate _selectedSymbol;
         private string _appStatus;
-        private bool _canEditDates = true;
         private ObservableCollection<SeriesWithLabels> _seriesCollections = new ObservableCollection<SeriesWithLabels>();
+        private SeriesWithLabels _goldPriceSeries;
+
+        public SeriesWithLabels GoldPriceSeries
+        {
+            get => _goldPriceSeries;
+            set => Set(nameof(GoldPriceSeries), ref _goldPriceSeries, value);
+        }
 
         public ObservableCollection<SeriesWithLabels> SeriesCollections
         {
             get => _seriesCollections;
             set => Set(nameof(SeriesCollections), ref _seriesCollections, value);
-        }
-
-        public bool CanEditDates
-        {
-            get => _canEditDates;
-            set
-            {
-                Set(nameof(CanEditDates), ref _canEditDates, value);
-            }
         }
 
         public string AppStatus
@@ -99,21 +96,51 @@ namespace BankFromApi.ViewModel
 
         public ICommand GetDataCommand { get; set; }
         public ICommand ClearChartCommand { get; set; }
+        public ICommand GetGoldDataCommand { get; set; }
+        public ICommand ClearGoldChartCommand { get; set; }
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
         public MainViewModel()
         {
             GetDataCommand = new RelayCommand(GetRate, CanGetData);
-            ClearChartCommand = new RelayCommand(ClearChart, !CanEditDates);
+            ClearChartCommand = new RelayCommand(ClearChart, true);
+            GetGoldDataCommand = new RelayCommand(GetGoldData, CanGetGoldData);
+            ClearGoldChartCommand = new RelayCommand(ClearGoldChart, true);
             GetSymbols();
+        }
+
+        private void ClearGoldChart()
+        {
+            GoldPriceSeries.Clear();
+        }
+
+        private bool CanGetGoldData()
+        {
+            return DateFrom <= DateTo && DateTo <= DateTime.Today;
+        }
+
+        private async void GetGoldData()
+        {
+            var goldPrices = await GetFromApi.GoldPrice(DateFrom, DateTo);
+
+            var labels = goldPrices.Select(g => g.data);
+
+            var series = new SeriesCollection
+            {
+                new LineSeries
+                {
+                    Values = new ChartValues<double>(goldPrices.Select(g => g.cena)),
+                    Title = "Cena złota"
+                },
+            };
+
+            GoldPriceSeries = new SeriesWithLabels(series, labels.ToList());
         }
 
         private void ClearChart()
         {
             SeriesCollections.Clear();
-            CanEditDates = true;
-
         }
 
         private bool CanGetData()
@@ -151,8 +178,6 @@ namespace BankFromApi.ViewModel
             };
 
             SeriesCollections.Add(new SeriesWithLabels(series, labels));
-
-            CanEditDates = false;
         }
     }
 }

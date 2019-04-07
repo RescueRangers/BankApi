@@ -17,5 +17,11 @@ namespace BankFromApi.Model
             SeriesCollection = series;
             Labels = labels;
         }
+
+        public void Clear()
+        {
+            SeriesCollection.Clear();
+            Labels.Clear();
+        }
     }
 }

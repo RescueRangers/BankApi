@@ -14,9 +14,13 @@ namespace ApiLibrary
     {
         private readonly static string ApiUrl = @"http://api.nbp.pl/api/";
         private readonly static int ApiDayLimit = 93;
+        private readonly static int ApiGoldPriceDayLimit = 367;
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-
+        /// <summary>
+        /// Gets available curremcies
+        /// </summary>
+        /// <returns></returns>
         public static async Task<IEnumerable<Rate>> Symbols()
         {
             var tables = new List<string> { "A", "B" };
@@ -24,7 +28,9 @@ namespace ApiLibrary
 
             foreach (var table in tables)
             {
-                var url = Url.Combine(ApiUrl, "exchangerates/tables", table);
+                var url = Url.Combine(ApiUrl,
+                                      "exchangerates/tables",
+                                      table);
 
                 try
                 {
@@ -52,30 +58,19 @@ namespace ApiLibrary
         /// <param name="dateTo"></param>
         /// <param name="currency"></param>
         /// <returns></returns>
-        public static async Task<List<CurrencyRoot>> CurrencyRate(DateTime dateFrom, DateTime dateTo, Rate currency)
+        public static async Task<IEnumerable<CurrencyRoot>> CurrencyRate(DateTime dateFrom, DateTime dateTo, Rate currency)
         {
             var root = new List<CurrencyRoot>();
-            var dates = new List<Tuple<DateTime, DateTime>>();
-
-            if ((dateFrom - dateTo).TotalDays < - ApiDayLimit)
-            {
-                while ((dateFrom - dateTo).TotalDays < - ApiDayLimit)
-                {
-                    dates.Add(new Tuple<DateTime, DateTime>(dateFrom, dateFrom.AddDays(ApiDayLimit)));
-
-                    dateFrom = dateFrom.AddDays(ApiDayLimit + 1);
-                }
-
-                dates.Add(new Tuple<DateTime, DateTime>(dateFrom, dateTo));
-            }
-            else
-            {
-                dates.Add(new Tuple<DateTime, DateTime>(dateFrom, dateTo));
-            }
+            var dates = ConformDates(dateFrom, dateTo, ApiDayLimit);
 
             foreach (var date in dates)
             {
-                var url = Url.Combine("http://api.nbp.pl/api/exchangerates/rates", currency.Table, currency.code, date.Item1.ToString("yyyy-MM-dd"), date.Item2.ToString("yyyy-MM-dd"));
+                var url = Url.Combine(ApiUrl,
+                                      "exchangerates/rates",
+                                      currency.Table,
+                                      currency.code,
+                                      date.Item1.ToString("yyyy-MM-dd"),
+                                      date.Item2.ToString("yyyy-MM-dd"));
 
                 try
                 {
@@ -92,6 +87,59 @@ namespace ApiLibrary
             }
 
             return root;
+        }
+
+        private static List<Tuple<DateTime, DateTime>> ConformDates(DateTime dateFrom, DateTime dateTo, int dayLimit)
+        {
+            var dates = new List<Tuple<DateTime, DateTime>>();
+
+            if ((dateFrom - dateTo).TotalDays < -dayLimit)
+            {
+                while ((dateFrom - dateTo).TotalDays < -dayLimit)
+                {
+                    dates.Add(new Tuple<DateTime, DateTime>(dateFrom, dateFrom.AddDays(dayLimit)));
+
+                    dateFrom = dateFrom.AddDays(dayLimit + 1);
+                }
+
+                dates.Add(new Tuple<DateTime, DateTime>(dateFrom, dateTo));
+            }
+            else
+            {
+                dates.Add(new Tuple<DateTime, DateTime>(dateFrom, dateTo));
+            }
+
+            return dates;
+        }
+
+        public static async Task<IEnumerable<GoldPrice>> GoldPrice(DateTime dateFrom, DateTime dateTo)
+        {
+            var dates = ConformDates(dateFrom, dateTo, ApiGoldPriceDayLimit);
+            var goldPrices = new List<GoldPrice>();
+
+            foreach (var date in dates)
+            {
+                var url = Url.Combine(ApiUrl,
+                                      "cenyzlota",
+                                      date.Item1.ToString("yyyy-MM-dd"),
+                                      date.Item2.ToString("yyyy-MM-dd"));
+
+                try
+                {
+                    using (var client = new HttpClient())
+                    {
+                        var currencyJson = await client.GetStringAsync(url);
+                        goldPrices.AddRange(JsonConvert.DeserializeObject<List<GoldPrice>>(currencyJson));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.Error(ex);
+                }
+            }
+
+            return goldPrices;
+
         }
     }
 }

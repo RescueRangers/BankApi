@@ -1,4 +1,3 @@
-using BankFromApi.Model;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
 using Newtonsoft.Json;
@@ -13,6 +12,8 @@ using System.Windows.Input;
 using Flurl;
 using LiveCharts;
 using LiveCharts.Wpf;
+using ApiLibrary;
+using ApiLibrary.DataModel;
 
 namespace BankFromApi.ViewModel
 {
@@ -37,8 +38,10 @@ namespace BankFromApi.ViewModel
         private SeriesCollection _series;
         private string _appStatus;
         private List<string> _labels;
-        private List<RootObject> _root;
+        private List<CurrencyRoot> _root;
         private bool _canEditDates = true;
+
+        private readonly int ApiDayLimit = 93;
 
         public bool CanEditDates
         {
@@ -137,11 +140,11 @@ namespace BankFromApi.ViewModel
         {
             var values = new List<double>();
 
-            foreach (var item in _root)
+            foreach(var root in _root)
             {
-                var result = item.rates.FirstOrDefault(s => s.code == SelectedSymbol.code);
-                values.Add(result.mid);
+                values.AddRange(root.rates.Select(s => s.mid));
             }
+            
 
             var lineSeries = new LineSeries
             {
@@ -159,27 +162,13 @@ namespace BankFromApi.ViewModel
 
         private async void GetSymbols()
         {
-            var apiUrl = "http://api.nbp.pl/api/exchangerates/tables/A/";
-
-            try
-            {
-                using (var client = new HttpClient())
-                {
-                    var currencyJson = await client.GetStringAsync(apiUrl);
-                    var symbols = JsonConvert.DeserializeObject<List<RootObject>>(currencyJson);
-                    Symbols = new ObservableCollection<Rate>(symbols[0].rates);
-                    AppStatus = null;
-                }
-            }
-            catch (Exception ex)
-            {
-                AppStatus = ex.Message;
-            }
+            var symbols = await GetFromApi.Symbols();
+            Symbols = new ObservableCollection<Rate>(symbols);
         }
 
         private async void GetRate()
         {
-            _root = await GetData();
+            _root = await GetFromApi.CurrencyRate(DateFrom, DateTo, SelectedSymbol);
             if (_root == null) return;
 
             var lineSeries = new List<double>();
@@ -187,9 +176,8 @@ namespace BankFromApi.ViewModel
 
             foreach (var item in _root)
             {
-                var result = item.rates.FirstOrDefault(s => s.code == SelectedSymbol.code);
-                lineSeries.Add(result.mid);
-                labels.Add(item.effectiveDate);
+                lineSeries.AddRange(item.rates.Select(s => s.mid));
+                labels.AddRange(item.rates.Select(s => s.effectiveDate));
             }
 
             Labels = labels;
@@ -204,54 +192,6 @@ namespace BankFromApi.ViewModel
             };
 
             CanEditDates = false;
-        }
-
-        private async Task<List<RootObject>> GetData()
-        {
-            var root = new List<RootObject>();
-            var dates = new List<Tuple<DateTime, DateTime>>();
-            var apiDayLimit = 93;
-
-            var dateFrom = DateFrom;
-            var dateTo = DateTo;
-
-            if ((dateFrom - dateTo).TotalDays < -apiDayLimit)
-            {
-                while ((dateFrom - dateTo).TotalDays < -apiDayLimit)
-                {
-                    dates.Add(new Tuple<DateTime, DateTime>(dateFrom, dateFrom.AddDays(apiDayLimit)));
-
-                    dateFrom = dateFrom.AddDays(apiDayLimit+1);
-                }
-
-                dates.Add(new Tuple<DateTime, DateTime>(dateFrom, dateTo));
-            }
-            else
-            {
-                dates.Add(new Tuple<DateTime, DateTime>(dateFrom, dateTo));
-            }
-
-            foreach (var date in dates)
-            {
-                var url = Url.Combine("http://api.nbp.pl/api/exchangerates/tables/A/", date.Item1.ToString("yyyy-MM-dd"), date.Item2.ToString("yyyy-MM-dd"));
-
-                try
-                {
-                    using (var client = new HttpClient())
-                    {
-                        var currencyJson = await client.GetStringAsync(url);
-                        root.AddRange(JsonConvert.DeserializeObject<List<RootObject>>(currencyJson));
-                    }
-                    AppStatus = null;
-                }
-                catch (Exception ex)
-                {
-                    AppStatus = ex.Message;
-                    return null;
-                }
-            }
-
-            return root;
         }
     }
 }

@@ -122,7 +122,7 @@ namespace BankFromApi.ViewModel
 
         private async void GetGoldData()
         {
-            var goldPrices = await GetFromApi.GoldPrice(DateFrom, DateTo);
+            var goldPrices = await GetFromNBPApi.GoldPrice(DateFrom, DateTo);
 
             var labels = goldPrices.Select(g => g.data);
 
@@ -150,13 +150,13 @@ namespace BankFromApi.ViewModel
 
         private async void GetSymbols()
         {
-            var symbols = await GetFromApi.Symbols();
+            var symbols = await GetFromNBPApi.Symbols();
             Symbols = new ObservableCollection<Rate>(symbols);
         }
 
         private async void GetRate()
         {
-            var root = await GetFromApi.CurrencyRate(DateFrom, DateTo, SelectedSymbol);
+            var root = await GetFromNBPApi.CurrencyRate(DateFrom, DateTo, SelectedSymbol);
             if (root == null) return;
 
             var lineSeries = new List<double>();

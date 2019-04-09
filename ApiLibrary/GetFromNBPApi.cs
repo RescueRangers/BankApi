@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace ApiLibrary
 {
 
-    public class GetFromApi
+    public class GetFromNBPApi
     {
         private readonly static string ApiUrl = @"http://api.nbp.pl/api/";
         private readonly static int ApiDayLimit = 93;

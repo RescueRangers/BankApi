@@ -53,7 +53,7 @@
     <Compile Include="DataModel\CurrencyRate.cs" />
     <Compile Include="DataModel\CurrencyRoot.cs" />
     <Compile Include="DataModel\GoldPrice.cs" />
-    <Compile Include="GetFromApi.cs" />
+    <Compile Include="GetFromNBPApi.cs" />
     <Compile Include="DataModel\Rate.cs" />
     <Compile Include="DataModel\RootObject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

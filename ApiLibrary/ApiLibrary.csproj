@@ -50,9 +50,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataModel\CryptoDataModel\Coin.cs" />
+    <Compile Include="DataModel\CryptoDataModel\CoinResponse.cs" />
+    <Compile Include="DataModel\CryptoDataModel\ConversionType.cs" />
+    <Compile Include="DataModel\CryptoDataModel\CryptoResponse.cs" />
+    <Compile Include="DataModel\CryptoDataModel\Datum.cs" />
+    <Compile Include="DataModel\CryptoDataModel\RateLimit.cs" />
     <Compile Include="DataModel\CurrencyRate.cs" />
     <Compile Include="DataModel\CurrencyRoot.cs" />
     <Compile Include="DataModel\GoldPrice.cs" />
+    <Compile Include="GetFromCryptoApi.cs" />
     <Compile Include="GetFromNBPApi.cs" />
     <Compile Include="DataModel\Rate.cs" />
     <Compile Include="DataModel\RootObject.cs" />

@@ -51,11 +51,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataModel\CryptoDataModel\Coin.cs" />
+    <Compile Include="DataModel\CryptoDataModel\CoinData.cs" />
     <Compile Include="DataModel\CryptoDataModel\CoinResponse.cs" />
     <Compile Include="DataModel\CryptoDataModel\ConversionType.cs" />
     <Compile Include="DataModel\CryptoDataModel\CryptoResponse.cs" />
     <Compile Include="DataModel\CryptoDataModel\Datum.cs" />
+    <Compile Include="DataModel\CryptoDataModel\DISPLAY.cs" />
     <Compile Include="DataModel\CryptoDataModel\RateLimit.cs" />
+    <Compile Include="DataModel\CryptoDataModel\RAW.cs" />
+    <Compile Include="DataModel\CryptoDataModel\USD.cs" />
     <Compile Include="DataModel\CurrencyRate.cs" />
     <Compile Include="DataModel\CurrencyRoot.cs" />
     <Compile Include="DataModel\GoldPrice.cs" />

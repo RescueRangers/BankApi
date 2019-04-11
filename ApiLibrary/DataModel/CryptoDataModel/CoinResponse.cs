@@ -9,14 +9,11 @@ namespace ApiLibrary.DataModel.CryptoDataModel
 {
     public class CoinResponse
     {
-        public string Response { get; set; }
         public string Message { get; set; }
-        [JsonProperty("Data")]
-        public Dictionary<string, Coin> Data { get; set; }
-        public string BaseImageUrl { get; set; }
-        public string BaseLinkUrl { get; set; }
+        public int Type { get; set; }
+        public IList<object> SponsoredData { get; set; }
+        public IList<CoinData> Data { get; set; }
         public RateLimit RateLimit { get; set; }
         public bool HasWarning { get; set; }
-        public int Type { get; set; }
     }
 }

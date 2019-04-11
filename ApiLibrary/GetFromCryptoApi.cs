@@ -14,9 +14,9 @@ namespace ApiLibrary
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         private const string ApiKey = "9518f9b801e8f05469a75e055e524c3cc03b0a6b24dcfd66de11e38edf49d37f";
 
-        public static async Task<CryptoResponse> HistoricalDaily()
+        public static async Task<CryptoResponse> HistoricalDaily(Coin coin)
         {
-            var url = Url.Combine(CryptoApi, "data/histoday").SetQueryParams(new { fsym = "BTC", tsym = "USD", limit = 31, api_key = ApiKey });
+            var url = Url.Combine(CryptoApi, "data/histoday").SetQueryParams(new { fsym = coin.Name, tsym = "PLN", limit = 31, api_key = ApiKey });
 
             try
             {
@@ -36,7 +36,7 @@ namespace ApiLibrary
 
         public static async Task<CoinResponse> Coins()
         {
-            var url = Url.Combine(CryptoApi, "data/all/coinlist");
+            var url = Url.Combine(CryptoApi, "data/top/totalvolfull").SetQueryParams(new {limit = 100, tsym = "PLN", api_key = ApiKey });
 
             try
             {
@@ -50,7 +50,7 @@ namespace ApiLibrary
             catch (Exception ex)
             {
                 log.Error(ex);
-                return new CoinResponse { Response = "Error", HasWarning = true, Message = ex.Message };
+                return new CoinResponse { HasWarning = true, Message = ex.Message };
             }
         }
     }

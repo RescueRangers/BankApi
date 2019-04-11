@@ -12,6 +12,9 @@ using LiveCharts.Wpf;
 using ApiLibrary;
 using ApiLibrary.DataModel;
 using BankFromApi.Model;
+using ApiLibrary.DataModel.CryptoDataModel;
+using LiveCharts.Defaults;
+using System.Windows.Media;
 
 namespace BankFromApi.ViewModel
 {
@@ -36,6 +39,27 @@ namespace BankFromApi.ViewModel
         private string _appStatus;
         private ObservableCollection<SeriesWithLabels> _seriesCollections = new ObservableCollection<SeriesWithLabels>();
         private SeriesWithLabels _goldPriceSeries;
+        private ObservableCollection<Coin> _coins;
+        private Coin _selectedCoin;
+        private ObservableCollection<SeriesWithLabels> _cryptoSeriesCollection = new ObservableCollection<SeriesWithLabels>();
+
+        public ObservableCollection<SeriesWithLabels> CryptoSeriesCollection 
+        { 
+            get => _cryptoSeriesCollection; 
+            set => Set(nameof(CryptoSeriesCollection), ref _cryptoSeriesCollection, value); 
+        }
+
+        public Coin SelectedCoin
+        {
+            get => _selectedCoin;
+            set => Set(nameof(SelectedCoin), ref _selectedCoin, value);
+        }
+
+        public ObservableCollection<Coin> Coins
+        {
+            get => _coins;
+            set => Set(nameof(Coins), ref _coins, value);
+        }
 
         public SeriesWithLabels GoldPriceSeries
         {
@@ -98,6 +122,7 @@ namespace BankFromApi.ViewModel
         public ICommand ClearChartCommand { get; set; }
         public ICommand GetGoldDataCommand { get; set; }
         public ICommand ClearGoldChartCommand { get; set; }
+        public ICommand GetCryptoDataCommand { get; set; }
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
@@ -107,7 +132,43 @@ namespace BankFromApi.ViewModel
             ClearChartCommand = new RelayCommand(ClearChart, true);
             GetGoldDataCommand = new RelayCommand(GetGoldData, CanGetGoldData);
             ClearGoldChartCommand = new RelayCommand(ClearGoldChart, true);
+            GetCryptoDataCommand = new RelayCommand(GetCryptoData, () => SelectedCoin != null);
             GetSymbols();
+            GetCoins();
+        }
+
+        private async void GetCryptoData()
+        {
+            var response = await GetFromCryptoApi.HistoricalDaily(SelectedCoin);
+
+            var chartValues = new ChartValues<OhlcPoint>(from s in response.Data select new OhlcPoint(s.open, s.high, s.low, s.close));
+            var lineChartValues = new ChartValues<double>(from s in response.Data select s.close);
+
+            var data = new SeriesCollection
+            { 
+                new OhlcSeries
+                {
+                    Values = chartValues,
+                    Title = SelectedCoin.ToString()
+                },
+                new LineSeries
+                {
+                    Values = lineChartValues,
+                    Fill = Brushes.Transparent,
+                    Title = "Cena zamknięcia"
+                }
+            };
+
+            var seriesWithLabels = new SeriesWithLabels(data, null);
+
+            CryptoSeriesCollection.Add(seriesWithLabels);
+        }
+
+        private async void GetCoins()
+        {
+            var coinResponse = await GetFromCryptoApi.Coins();
+
+            Coins = new ObservableCollection<Coin>(coinResponse.Data.Select(c => c.CoinInfo));
         }
 
         private void ClearGoldChart()

@@ -10,7 +10,7 @@
         DataContext="{Binding Main, Source={StaticResource Locator}}">
     <Grid Margin="10">
         <TabControl>
-            <TabItem Header="Notoania walut">
+            <TabItem Header="Notowania walut">
                 <DockPanel>
                     <StackPanel DockPanel.Dock="Right"
                         Orientation="Vertical"
@@ -101,6 +101,88 @@
                         </lvc:CartesianChart.AxisX>
                     </lvc:CartesianChart>
                     
+                </DockPanel>
+            </TabItem>
+
+            <TabItem Header="Notowania krypto">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Right"
+                        Orientation="Vertical"
+                        Width="180">
+                        <Label Content="Data od:"/>
+                        <DatePicker SelectedDate="{Binding DateFrom}"/>
+                        <Button Margin="0 10"
+                        Padding="5"
+                        Content="Pokaż na wykresie"
+                        Command="{Binding GetCryptoDataCommand}"/>
+                        <ComboBox ItemsSource="{Binding Coins}"
+                                  SelectedValue="{Binding SelectedCoin}"
+                                  IsEditable="True">
+                            <ComboBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <VirtualizingStackPanel />
+                                </ItemsPanelTemplate>
+                            </ComboBox.ItemsPanel>
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <VirtualizingStackPanel Orientation="Horizontal"
+                                                VerticalAlignment="Center">
+                                        <Image Source="{Binding FullImageUrl}" 
+                                               Margin="5 0"
+                                               Width="40"/>
+                                        <TextBlock VerticalAlignment="Center"
+                                                   Margin="5 0">
+                                            <TextBlock.Text>
+                                                <MultiBinding StringFormat="{}{0} - ({1})">
+                                                    <Binding Path="FullName"/>
+                                                    <Binding Path="Name"/>
+                                                </MultiBinding>
+                                            </TextBlock.Text>
+                                        </TextBlock>
+                                    </VirtualizingStackPanel>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+
+                        <Button Content="Wyczyść wykres"
+                        Margin="0 10"
+                        Padding="5"
+                        Command="{Binding ClearChartCommand}"/>
+
+                        <TextBlock Text="{Binding AppStatus}"
+                                   TextWrapping="Wrap"
+                                   Margin="0 10"
+                                   Foreground="Red"/>
+                    </StackPanel>
+
+                    <ListBox DockPanel.Dock="Bottom"
+                              ItemsSource="{Binding CryptoSeriesCollection}"
+                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                             ScrollViewer.CanContentScroll="False">
+
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch"></Setter>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <lvc:CartesianChart DockPanel.Dock="Bottom" 
+                                            Series="{Binding SeriesCollection}"
+                                            LegendLocation="Bottom"
+                                            DisableAnimations="False"
+                                            Hoverable="True"
+                                                    Height="600">
+                                    <!--<lvc:CartesianChart.AxisX>
+                                        <lvc:Axis Title="Data" 
+                                          Labels="{Binding Labels}"/>
+                                    </lvc:CartesianChart.AxisX>-->
+                                </lvc:CartesianChart>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+
                 </DockPanel>
             </TabItem>
         </TabControl>

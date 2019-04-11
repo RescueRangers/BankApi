@@ -4,13 +4,18 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BankFromApi"
+        xmlns:converters="clr-namespace:BankFromApi.Converters"
         mc:Ignorable="d"
         xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
         Title="MainWindow" Height="720" Width="1280"
         DataContext="{Binding Main, Source={StaticResource Locator}}">
+    <Window.Resources>
+        <converters:HalfTheValueConverter x:Key="HalfTheValue"/>
+    </Window.Resources>
+    
     <Grid Margin="10">
         <TabControl>
-            <TabItem Header="Notoania walut">
+            <TabItem Header="Notowania walut">
                 <DockPanel>
                     <StackPanel DockPanel.Dock="Right"
                         Orientation="Vertical"
@@ -39,8 +44,9 @@
                     </StackPanel>
 
                     <ListView DockPanel.Dock="Bottom"
-                      ItemsSource="{Binding SeriesCollections}"
-                      ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                              ItemsSource="{Binding SeriesCollections}"
+                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                              x:Name="NBPCharts">
                         <ListView.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <WrapPanel Orientation="Horizontal"/>
@@ -53,8 +59,8 @@
                                             LegendLocation="Bottom"
                                             DisableAnimations="False"
                                             Hoverable="True"
-                                            Height="300"
-                                            Width="500">
+                                            Height="{Binding ActualHeight, ElementName=NBPCharts, Converter={StaticResource HalfTheValue}}"
+                                            Width="{Binding ActualWidth, ElementName=NBPCharts, Converter={StaticResource HalfTheValue}}">
                                     <lvc:CartesianChart.AxisX>
                                         <lvc:Axis Title="Data" 
                                           Labels="{Binding Labels}"/>

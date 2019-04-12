@@ -12,6 +12,7 @@ using LiveCharts.Wpf;
 using ApiLibrary;
 using ApiLibrary.DataModel;
 using BankFromApi.Model;
+using System.Windows.Data;
 
 namespace BankFromApi.ViewModel
 {
@@ -178,6 +179,9 @@ namespace BankFromApi.ViewModel
             };
 
             SeriesCollections.Add(new SeriesWithLabels(series, labels));
+
+            if(SeriesCollections.Count == 2)
+                CollectionViewSource.GetDefaultView(SeriesCollections).Refresh();
         }
     }
 }

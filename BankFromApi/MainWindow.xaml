@@ -47,6 +47,7 @@
                               ItemsSource="{Binding SeriesCollections}"
                               ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                               x:Name="NBPCharts">
+                        
                         <ListView.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <WrapPanel Orientation="Horizontal"/>
@@ -55,16 +56,38 @@
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <lvc:CartesianChart DockPanel.Dock="Bottom" 
-                                            Series="{Binding SeriesCollection}"
-                                            LegendLocation="Bottom"
-                                            DisableAnimations="False"
-                                            Hoverable="True"
-                                            Height="{Binding ActualHeight, ElementName=NBPCharts, Converter={StaticResource HalfTheValue}}"
-                                            Width="{Binding ActualWidth, ElementName=NBPCharts, Converter={StaticResource HalfTheValue}}">
+                                                    Series="{Binding SeriesCollection}"
+                                                    LegendLocation="Bottom"
+                                                    DisableAnimations="False"
+                                                    Hoverable="True">
+                                    
+                                    <lvc:CartesianChart.Height>
+                                        <MultiBinding Converter="{StaticResource HalfTheValue}">
+                                            <Binding ElementName="NBPCharts" 
+                                                     Path="ActualHeight"
+                                                     UpdateSourceTrigger="PropertyChanged"/>
+                                            <Binding ElementName="NBPCharts" 
+                                                     Path="ItemsSource"
+                                                     UpdateSourceTrigger="PropertyChanged"/>
+                                        </MultiBinding>
+                                    </lvc:CartesianChart.Height>
+
+                                    <lvc:CartesianChart.Width>
+                                        <MultiBinding Converter="{StaticResource HalfTheValue}">
+                                            <Binding ElementName="NBPCharts" 
+                                                     Path="ActualWidth"
+                                                     UpdateSourceTrigger="PropertyChanged"/>
+                                            <Binding ElementName="NBPCharts"
+                                                     Path="ItemsSource"
+                                                     UpdateSourceTrigger="PropertyChanged"/>
+                                        </MultiBinding>
+                                    </lvc:CartesianChart.Width>
+                                    
                                     <lvc:CartesianChart.AxisX>
                                         <lvc:Axis Title="Data" 
                                           Labels="{Binding Labels}"/>
                                     </lvc:CartesianChart.AxisX>
+                                    
                                 </lvc:CartesianChart>
                             </DataTemplate>
                         </ListView.ItemTemplate>

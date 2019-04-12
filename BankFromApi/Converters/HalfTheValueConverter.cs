@@ -19,8 +19,10 @@ namespace BankFromApi.Converters
                 var actualValue = (double)values[0];
 
 
-                if (series.Count > 1)
+                if (series.Count > 1 && series.Count <= 4)
                     return (actualValue - 30) / 2;
+                else if(series.Count > 4)
+                    return (actualValue - 50) / 2;
                 return actualValue - 10;
             }
             catch (Exception ex)

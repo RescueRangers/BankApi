@@ -13,6 +13,7 @@ using ApiLibrary;
 using ApiLibrary.DataModel;
 using BankFromApi.Model;
 using System.Windows.Data;
+using System.Windows.Media;
 
 namespace BankFromApi.ViewModel
 {
@@ -30,6 +31,10 @@ namespace BankFromApi.ViewModel
     /// </summary>
     public class MainViewModel : ViewModelBase
     {
+        private static readonly List<string> _colours = new List<string> { "#ff0000", "#a3a67c", "#99c2cc", "#8500a6", "#4c0000", "#c2f200", "#13394d", 
+            "#80407b", "#bf3030", "#5c7300", "#0081f2", "#ff00cc", "#cc9999", "#40ff40", "#466c8c", "#4c0029", "#d95700", "#60bf6c", "#404880", "#ff4073", 
+            "#f2aa79", "#264d36", "#281d73", "#994d61", "#593a16", "#30bfa3", "#4100f2", "#8c5e00", "#1a6166", "#9979f2", "#e5c339", "#00b8e6", "#b499cc" };
+
         private DateTime _dateFrom = DateTime.Today.AddDays(-1);
         private DateTime _dateTo = DateTime.Today;
         private ObservableCollection<Rate> _symbols;
@@ -169,18 +174,26 @@ namespace BankFromApi.ViewModel
                 labels.AddRange(item.rates.Select(s => s.effectiveDate));
             }
 
+            var brush = (Brush)new BrushConverter().ConvertFrom(_colours[SeriesCollections.Count % (_colours.Count + 1)]);
+            var brushWithOpacity = brush.Clone();
+            brushWithOpacity.Opacity = 0.3;
+
             var series = new SeriesCollection
             {
                 new LineSeries
                 {
                     Values = new ChartValues<double>(lineSeries),
-                    Title = SelectedSymbol.ToString()
+                    Title = SelectedSymbol.ToString(),
+                    Fill = brushWithOpacity,
+                    Stroke = brush
                 },
             };
 
             SeriesCollections.Add(new SeriesWithLabels(series, labels));
 
             if(SeriesCollections.Count == 2)
+                CollectionViewSource.GetDefaultView(SeriesCollections).Refresh();
+            if (SeriesCollections.Count == 5)
                 CollectionViewSource.GetDefaultView(SeriesCollections).Refresh();
         }
     }

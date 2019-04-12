@@ -58,8 +58,8 @@
                                 <lvc:CartesianChart DockPanel.Dock="Bottom" 
                                                     Series="{Binding SeriesCollection}"
                                                     LegendLocation="Bottom"
-                                                    DisableAnimations="False"
-                                                    Hoverable="True">
+                                                    Hoverable="True"
+                                                    DisableAnimations="True">
                                     
                                     <lvc:CartesianChart.Height>
                                         <MultiBinding Converter="{StaticResource HalfTheValue}">

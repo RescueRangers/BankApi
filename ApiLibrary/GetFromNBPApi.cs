@@ -52,7 +52,7 @@ namespace ApiLibrary
         }
 
         /// <summary>
-        /// Gets currency rates between given dates
+        /// Gets currency rate between given dates
         /// </summary>
         /// <param name="dateFrom"></param>
         /// <param name="dateTo"></param>
@@ -69,6 +69,37 @@ namespace ApiLibrary
                                       "exchangerates/rates",
                                       currency.Table,
                                       currency.code,
+                                      date.Item1.ToString("yyyy-MM-dd"),
+                                      date.Item2.ToString("yyyy-MM-dd"));
+
+                try
+                {
+                    using (var client = new HttpClient())
+                    {
+                        var currencyJson = await client.GetStringAsync(url);
+                        root.Add(JsonConvert.DeserializeObject<CurrencyRoot>(currencyJson));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.Error(ex);
+                }
+            }
+
+            return root;
+        }
+
+        public static async Task<IEnumerable<CurrencyRoot>> CurrencyRate(DateTime dateFrom, DateTime dateTo, string currency, string table)
+        {
+            var root = new List<CurrencyRoot>();
+            var dates = ConformDates(dateFrom, dateTo, ApiDayLimit);
+
+            foreach (var date in dates)
+            {
+                var url = Url.Combine(ApiUrl,
+                                      "exchangerates/rates",
+                                      table,
+                                      currency,
                                       date.Item1.ToString("yyyy-MM-dd"),
                                       date.Item2.ToString("yyyy-MM-dd"));
 
@@ -112,6 +143,12 @@ namespace ApiLibrary
             return dates;
         }
 
+        /// <summary>
+        /// Gets gold prices between given dates
+        /// </summary>
+        /// <param name="dateFrom"></param>
+        /// <param name="dateTo"></param>
+        /// <returns></returns>
         public static async Task<IEnumerable<GoldPrice>> GoldPrice(DateTime dateFrom, DateTime dateTo)
         {
             var dates = ConformDates(dateFrom, dateTo, ApiGoldPriceDayLimit);
@@ -139,7 +176,37 @@ namespace ApiLibrary
             }
 
             return goldPrices;
+        }
 
+        public static async Task<IEnumerable<CurrencyRoot>> SalePurchaseRate(DateTime dateFrom, DateTime dateTo, Rate currency)
+        {
+            var root = new List<CurrencyRoot>();
+            var dates = ConformDates(dateFrom, dateTo, ApiDayLimit);
+
+            foreach (var date in dates)
+            {
+                var url = Url.Combine(ApiUrl,
+                                      "exchangerates/rates",
+                                      "C",
+                                      currency.code,
+                                      date.Item1.ToString("yyyy-MM-dd"),
+                                      date.Item2.ToString("yyyy-MM-dd"));
+
+                try
+                {
+                    using (var client = new HttpClient())
+                    {
+                        var currencyJson = await client.GetStringAsync(url);
+                        root.Add(JsonConvert.DeserializeObject<CurrencyRoot>(currencyJson));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.Error(ex);
+                }
+            }
+
+            return root;
         }
     }
 }

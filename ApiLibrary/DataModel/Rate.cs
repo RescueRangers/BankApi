@@ -11,15 +11,10 @@ namespace ApiLibrary.DataModel
         public string currency { get; set; }
         public string code { get; set; }
         public double mid { get; set; }
-
         public string Table { get; set; }
+        public double bid { get; set; }
+        public double ask { get; set; }
 
-        public override bool Equals(object obj)
-        {
-            return obj is Rate rate &&
-                   currency == rate.currency &&
-                   code == rate.code;
-        }
 
         public override string ToString()
         {

@@ -15,7 +15,7 @@ namespace ApiLibrary
         private readonly static string ApiUrl = @"http://api.nbp.pl/api/";
         private readonly static int ApiDayLimit = 93;
         private readonly static int ApiGoldPriceDayLimit = 367;
-        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType); // logowanie bledow i informacji w aplikacji
 
         /// <summary>
         /// Gets available curremcies
@@ -45,7 +45,7 @@ namespace ApiLibrary
                 }
                 catch (Exception ex)
                 {
-                    throw ex;
+                    log.Error(ex);
                 }
             }
             return results;
@@ -62,7 +62,8 @@ namespace ApiLibrary
         {
             var root = new List<CurrencyRoot>();
             var dates = ConformDates(dateFrom, dateTo, ApiDayLimit);
-
+            
+            //Dla kazdego tuple z datami tworzy url do zapytanie w API NBP
             foreach (var date in dates)
             {
                 var url = Url.Combine(ApiUrl,
@@ -123,7 +124,7 @@ namespace ApiLibrary
         private static List<Tuple<DateTime, DateTime>> ConformDates(DateTime dateFrom, DateTime dateTo, int dayLimit)
         {
             var dates = new List<Tuple<DateTime, DateTime>>();
-
+            //Sprawdzenie czy zakres dat miesci się w limicie dni. Jezeli nie to dzielony jest na liste dat dopuki nie zostanie juz data ktora sie misci
             if ((dateFrom - dateTo).TotalDays < -dayLimit)
             {
                 while ((dateFrom - dateTo).TotalDays < -dayLimit)

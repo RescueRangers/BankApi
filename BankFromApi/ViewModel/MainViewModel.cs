@@ -154,12 +154,18 @@ namespace BankFromApi.ViewModel
             return DateFrom <= DateTo && SelectedSymbol != null && DateTo <= DateTime.Today;
         }
 
+        /// <summary>
+        /// Pobiera sumbole eg. USD z api zeby bylo co wyswietlac w comboboxie
+        /// </summary>
         private async void GetSymbols()
         {
             var symbols = await GetFromNBPApi.Symbols();
             Symbols = new ObservableCollection<Rate>(symbols);
         }
 
+        /// <summary>
+        /// Pobiera z biblioteki liste notowan i tworzy wykres
+        /// </summary>
         private async void GetRate()
         {
             var root = await GetFromNBPApi.CurrencyRate(DateFrom, DateTo, SelectedSymbol);

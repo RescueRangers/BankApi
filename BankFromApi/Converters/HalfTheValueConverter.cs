@@ -8,7 +8,15 @@ namespace BankFromApi.Converters
 {
     public class HalfTheValueConverter : IMultiValueConverter
     {
-        
+        /// <summary>
+        /// Sprawdza ile wykresow znajduje sie na liscie wykresow 
+        /// i na tej podstawie ustala wartosc szerokosci i wysokosci wykresu
+        /// </summary>
+        /// <param name="values"></param>
+        /// <param name="targetType"></param>
+        /// <param name="parameter"></param>
+        /// <param name="culture"></param>
+        /// <returns></returns>
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
             if(values.Length != 2)

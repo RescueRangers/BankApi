@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using ApiLibrary;
 using ApiLibrary.DataModel;
@@ -13,11 +12,10 @@ namespace ApiRelay.Controllers
     public class ValuesController : ControllerBase
     {
         // GET api/CurrencyRates
-        [HttpGet]
-        public async Task<IEnumerable<CurrencyRoot>> Get(DateTime dateFrom, DateTime dateTo, string currency, string table)
+        [HttpGet("{dateFrom}/{dateTo}/{currency}/{table}")]
+        public async Task<IEnumerable<RootObject>> Get(DateTime dateFrom, DateTime dateTo, string currency, string table)
         {
-            var currencyRoot = await GetFromNBPApi.CurrencyRate(dateFrom, dateTo, currency, table);
-            return currencyRoot;
+            return await GetFromNBPApi.CurrencyRate(dateFrom, dateTo, new Rate{ code = currency, Table = table});
         }
     }
 }

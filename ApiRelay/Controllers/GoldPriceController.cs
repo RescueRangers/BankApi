@@ -12,11 +12,10 @@ namespace ApiRelay.Controllers
     [ApiController]
     public class GoldPriceController : ControllerBase
     {
+        [HttpGet("{dateFrom}/{dateTo}")]
         public async Task<IEnumerable<GoldPrice>> Get(DateTime dateFrom, DateTime dateTo)
         {
-            var goldPrices = await GetFromNBPApi.GoldPrice(dateFrom, dateTo);
-
-            return goldPrices;
+            return await GetFromNBPApi.GoldPrice(dateFrom, dateTo);
         }
     }
 }

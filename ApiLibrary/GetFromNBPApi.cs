@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace ApiLibrary
 {
 
-    public class GetFromNBPApi
+    public static class GetFromNBPApi
     {
         private readonly static string ApiUrl = @"http://api.nbp.pl/api/";
         private readonly static int ApiDayLimit = 93;
@@ -18,19 +18,27 @@ namespace ApiLibrary
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         /// <summary>
-        /// Gets available curremcies
+        /// Gets available currencies
         /// </summary>
         /// <returns></returns>
-        public static async Task<IEnumerable<Rate>> Symbols()
+        public static async Task<IEnumerable<Rate>> Symbols(string table = null)
         {
-            var tables = new List<string> { "A", "B" };
+            var tables = new List<string>();
+            if (table != null)
+            {
+                tables.Add(table);
+            }
+            else
+            {
+                tables = new List<string>{ "A", "B"};
+            }
             var results = new List<Rate>();
 
-            foreach (var table in tables)
+            foreach (var item in tables)
             {
                 var url = Url.Combine(ApiUrl,
                                       "exchangerates/tables",
-                                      table);
+                                      item);
 
                 try
                 {
@@ -39,13 +47,13 @@ namespace ApiLibrary
                         var currencyJson = await client.GetStringAsync(url);
                         var symbols = JsonConvert.DeserializeObject<List<RootObject>>(currencyJson);
                         var rates = from s in symbols[0].rates
-                                    select new Rate { code = s.code, currency = s.currency, mid = s.mid, Table = table };
+                                    select new Rate { code = s.code, currency = s.currency, mid = s.mid, Table = item };
                         results.AddRange(rates);
                     }
                 }
                 catch (Exception ex)
                 {
-                    throw ex;
+                    log.Error(ex);
                 }
             }
             return results;
@@ -58,12 +66,10 @@ namespace ApiLibrary
         /// <param name="dateTo"></param>
         /// <param name="currency"></param>
         /// <returns></returns>
-        public static async Task<IEnumerable<CurrencyRoot>> CurrencyRate(DateTime dateFrom, DateTime dateTo, Rate currency)
+        public static async Task<IEnumerable<RootObject>> CurrencyRate(DateTime dateFrom, DateTime dateTo, Rate currency)
         {
-            var root = new List<CurrencyRoot>();
-            var dates = ConformDates(dateFrom, dateTo, ApiDayLimit);
-
-            foreach (var date in dates)
+            var root = new List<RootObject>();
+            foreach (var date in ConformDates(dateFrom, dateTo, ApiDayLimit))
             {
                 var url = Url.Combine(ApiUrl,
                                       "exchangerates/rates",
@@ -77,7 +83,7 @@ namespace ApiLibrary
                     using (var client = new HttpClient())
                     {
                         var currencyJson = await client.GetStringAsync(url);
-                        root.Add(JsonConvert.DeserializeObject<CurrencyRoot>(currencyJson));
+                        root.Add(JsonConvert.DeserializeObject<RootObject>(currencyJson));
                     }
                 }
                 catch (Exception ex)
@@ -114,16 +120,14 @@ namespace ApiLibrary
 
         public static async Task<IEnumerable<GoldPrice>> GoldPrice(DateTime dateFrom, DateTime dateTo)
         {
-            var dates = ConformDates(dateFrom, dateTo, ApiGoldPriceDayLimit);
             var goldPrices = new List<GoldPrice>();
 
-            foreach (var date in dates)
+            foreach (var date in ConformDates(dateFrom, dateTo, ApiGoldPriceDayLimit))
             {
                 var url = Url.Combine(ApiUrl,
                                       "cenyzlota",
                                       date.Item1.ToString("yyyy-MM-dd"),
                                       date.Item2.ToString("yyyy-MM-dd"));
-
                 try
                 {
                     using (var client = new HttpClient())
@@ -139,7 +143,6 @@ namespace ApiLibrary
             }
 
             return goldPrices;
-
         }
     }
 }

@@ -50,8 +50,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DataModel\CurrencyRate.cs" />
-    <Compile Include="DataModel\CurrencyRoot.cs" />
     <Compile Include="DataModel\GoldPrice.cs" />
     <Compile Include="GetFromNBPApi.cs" />
     <Compile Include="DataModel\Rate.cs" />

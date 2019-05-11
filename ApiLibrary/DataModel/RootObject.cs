@@ -13,5 +13,7 @@ namespace ApiLibrary.DataModel
         public string tradingDate { get; set; }
         public string effectiveDate { get; set; }
         public List<Rate> rates { get; set; }
+        public string currency { get; set; }
+        public string code { get; set; }
     }
 }

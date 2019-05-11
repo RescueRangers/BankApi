@@ -13,7 +13,7 @@ namespace ApiRelay.Controllers
     public class ValuesController : ControllerBase
     {
         // GET api/CurrencyRates
-        [HttpGet]
+        [HttpGet("{dateFrom}/{dateTo}/{table}/{currency}")]
         public async Task<IEnumerable<CurrencyRoot>> Get(DateTime dateFrom, DateTime dateTo, string currency, string table)
         {
             var currencyRoot = await GetFromNBPApi.CurrencyRate(dateFrom, dateTo, currency, table);
